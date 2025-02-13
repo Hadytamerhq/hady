@@ -1,7 +1,7 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { ShoppingCart, Heart, Menu, User, Tag, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, User, Tag, X, Edit, Save } from "lucide-react";
+import { useToast } from "./ui/use-toast";
 import {
   Sheet,
   SheetContent,
@@ -16,6 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Input } from "./ui/input";
 
 const products = [
   {
@@ -57,9 +58,60 @@ interface CartItem extends Product {
   quantity: number;
 }
 
+const specialOffers = [
+  {
+    id: 1,
+    title: "Summer Sale!",
+    description: "Get 20% off on all wireless devices",
+    code: "SUMMER20",
+  },
+  {
+    id: 2,
+    title: "Bundle Deal",
+    description: "Buy any 2 items and get 1 free",
+    code: "BUNDLE2GET1",
+  },
+];
+
 export const ShopPage = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("hin@gmail.com"); // Example email
+  const { toast } = useToast();
+
+  // Extract name from email on component mount
+  useEffect(() => {
+    const name = userEmail.split("@")[0];
+    setUserName(name.charAt(0).toUpperCase() + name.slice(1));
+  }, [userEmail]);
+
+  const addToWishlist = (product: Product) => {
+    if (!wishlistItems.some((item) => item.id === product.id)) {
+      setWishlistItems([...wishlistItems, product]);
+      toast({
+        title: "Added to Wishlist",
+        description: `${product.name} has been added to your wishlist`,
+      });
+    }
+  };
+
+  const removeFromWishlist = (productId: number) => {
+    setWishlistItems(wishlistItems.filter((item) => item.id !== productId));
+    toast({
+      title: "Removed from Wishlist",
+      description: "Item has been removed from your wishlist",
+    });
+  };
+
+  const saveProfile = () => {
+    setIsEditing(false);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated",
+    });
+  };
 
   const addToCart = (product: Product) => {
     setCartItems((prev) => {
@@ -101,33 +153,103 @@ export const ShopPage = () => {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="py-4">
-                  <div className="space-y-4">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-left"
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-left"
-                    >
-                      <Tag className="mr-2 h-4 w-4" />
-                      Special Offers
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-left"
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      Wishlist
-                    </Button>
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="relative h-32 rounded-lg overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500"
+                          alt="Profile Banner"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                          <h3 className="text-white font-semibold">{userName}</h3>
+                          <p className="text-white/80 text-sm">{userEmail}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 bg-black/20 hover:bg-black/40"
+                          onClick={() => setIsEditing(!isEditing)}
+                        >
+                          {isEditing ? <Save className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {isEditing && (
+                        <div className="space-y-2">
+                          <Input
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value)}
+                            placeholder="Email"
+                          />
+                          <Button onClick={saveProfile} className="w-full">
+                            Save Changes
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Tag className="mr-2 h-4 w-4" />
+                        Special Offers
+                      </h3>
+                      <div className="space-y-2">
+                        {specialOffers.map((offer) => (
+                          <div
+                            key={offer.id}
+                            className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                          >
+                            <h4 className="font-medium">{offer.title}</h4>
+                            <p className="text-sm text-white/60">
+                              {offer.description}
+                            </p>
+                            <code className="text-xs bg-white/10 px-2 py-1 rounded mt-2 inline-block">
+                              {offer.code}
+                            </code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Wishlist ({wishlistItems.length})
+                      </h3>
+                      <div className="space-y-2">
+                        {wishlistItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center space-x-3 p-2 rounded-lg bg-white/5"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-12 h-12 rounded-md object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{item.name}</p>
+                              <p className="text-sm text-white/60">
+                                ${item.price}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeFromWishlist(item.id)}
+                              className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </SheetContent>
             </Sheet>
+
             <h1 className="text-xl font-semibold">Premium Tech</h1>
+
             <div className="flex items-center space-x-4">
               <Drawer>
                 <DrawerTrigger asChild>
@@ -209,12 +331,26 @@ export const ShopPage = () => {
               <div className="p-4 space-y-2">
                 <h3 className="font-medium">{product.name}</h3>
                 <p className="text-sm text-white/60">${product.price}</p>
-                <Button
-                  onClick={() => addToCart(product)}
-                  className="w-full btn-primary"
-                >
-                  Add to Cart
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => addToCart(product)}
+                    className="flex-1 btn-primary"
+                  >
+                    Add to Cart
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => addToWishlist(product)}
+                    className={`${
+                      wishlistItems.some((item) => item.id === product.id)
+                        ? "bg-primary/10"
+                        : ""
+                    }`}
+                  >
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
