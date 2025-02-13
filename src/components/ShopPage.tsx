@@ -44,7 +44,16 @@ const products = [
   },
 ];
 
-interface CartItem extends (typeof products)[0] {
+// Define Product type first
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+};
+
+// Then define CartItem interface that includes all Product properties plus quantity
+interface CartItem extends Product {
   quantity: number;
 }
 
@@ -52,7 +61,7 @@ export const ShopPage = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
-  const addToCart = (product: (typeof products)[0]) => {
+  const addToCart = (product: Product) => {
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item.id === product.id);
       if (existingItem) {
