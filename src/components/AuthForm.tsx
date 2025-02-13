@@ -5,12 +5,15 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useToast } from "./ui/use-toast";
 import { Eye, EyeOff, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,8 +26,8 @@ export const AuthForm = () => {
         title: isLogin ? "Welcome back!" : "Account created successfully!",
         description: "Redirecting to the shop...",
       });
-      // Redirect to shop page
-      window.location.href = "/shop";
+      // Redirect to shop page with email state
+      navigate("/shop", { state: { email } });
     }, 1500);
   };
 
@@ -51,6 +54,8 @@ export const AuthForm = () => {
                 type="email"
                 placeholder="Enter your email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="form-input"
               />
             </div>

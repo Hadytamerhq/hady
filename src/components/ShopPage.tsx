@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ShoppingCart, Heart, Menu, User, Tag, X, Edit, Save } from "lucide-react";
 import { useToast } from "./ui/use-toast";
+import { useLocation, Navigate } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -74,14 +76,22 @@ const specialOffers = [
 ];
 
 export const ShopPage = () => {
+  const location = useLocation();
+  const email = location.state?.email;
+  
+  // Redirect if no email is provided
+  if (!email) {
+    return <Navigate to="/" replace />;
+  }
+
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [userEmail, setUserEmail] = useState(email);
   const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("hin@gmail.com"); // Example email
   const { toast } = useToast();
 
-  // Extract name from email on component mount
+  // Extract name from email whenever it changes
   useEffect(() => {
     const name = userEmail.split("@")[0];
     setUserName(name.charAt(0).toUpperCase() + name.slice(1));
