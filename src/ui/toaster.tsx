@@ -1,13 +1,13 @@
 
 import * as React from "react"
-import { ToastProvider } from "@radix-ui/react-toast"
+import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cn } from "@/lib/utils"
 
 const ToastViewport = React.forwardRef<
-  React.ElementRef<typeof ToastProvider>,
-  React.ComponentPropsWithoutRef<typeof ToastProvider>
+  React.ElementRef<typeof ToastPrimitives.Viewport>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => (
-  <ToastProvider
+  <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
       "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
@@ -16,12 +16,12 @@ const ToastViewport = React.forwardRef<
     {...props}
   />
 ))
-ToastViewport.displayName = "ToastViewport"
+ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 export function Toaster() {
   return (
-    <ToastProvider>
+    <ToastPrimitives.Provider>
       <ToastViewport />
-    </ToastProvider>
+    </ToastPrimitives.Provider>
   )
 }
