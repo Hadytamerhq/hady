@@ -1,9 +1,9 @@
 
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useToast } from "./ui/use-toast";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
+import { useToast } from "@/ui/use-toast";
 import { Eye, EyeOff, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
