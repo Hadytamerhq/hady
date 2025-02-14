@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart, Menu, User, Tag, X, Edit, Save } from "lucide-react";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useLocation, Navigate } from "react-router-dom";
 import {
   Sheet,
@@ -9,15 +9,15 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "./ui/sheet";
+} from "@/components/ui/sheet";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "./ui/drawer";
-import { Input } from "./ui/input";
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 
 const products = [
   {
