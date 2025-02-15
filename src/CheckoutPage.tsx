@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,7 @@ export const CheckoutPage = () => {
       title: "Order Placed Successfully",
       description: "Thank you for your purchase! You will receive a confirmation email shortly.",
     });
-    navigate('/shop');
+    navigate('/shop', { state: { email: formData.email } });
   };
 
   return (
