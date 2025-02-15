@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, User, Tag, X, Edit, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useLocation, Navigate, useNavigate } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Drawer,
   DrawerContent,
@@ -10,6 +17,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 
 const products = [
   {
@@ -36,44 +44,9 @@ const products = [
     price: 199.99,
     image: "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=500",
   },
-  {
-    id: 5,
-    name: "Wireless Gaming Mouse",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500",
-  },
-  {
-    id: 6,
-    name: "4K Gaming Monitor",
-    price: 599.99,
-    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500",
-  },
-  {
-    id: 7,
-    name: "Mechanical Keyboard",
-    price: 149.99,
-    image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500",
-  },
-  {
-    id: 8,
-    name: "Noise-Canceling Earbuds",
-    price: 249.99,
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500",
-  },
-  {
-    id: 9,
-    name: "Smart Home Hub",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=500",
-  },
-  {
-    id: 10,
-    name: "Wireless Charging Pad",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1587037542794-6c5bf0e66d8b?w=500",
-  },
 ];
 
+// Define Product type first
 type Product = {
   id: number;
   name: string;
@@ -81,22 +54,47 @@ type Product = {
   image: string;
 };
 
+// Then define CartItem interface that includes all Product properties plus quantity
 interface CartItem extends Product {
   quantity: number;
 }
 
+const specialOffers = [
+  {
+    id: 1,
+    title: "Summer Sale!",
+    description: "Get 20% off on all wireless devices",
+    code: "SUMMER20",
+  },
+  {
+    id: 2,
+    title: "Bundle Deal",
+    description: "Buy any 2 items and get 1 free",
+    code: "BUNDLE2GET1",
+  },
+];
+
 export const ShopPage = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const email = location.state?.email;
   
+  // Redirect if no email is provided
   if (!email) {
     return <Navigate to="/" replace />;
   }
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userEmail, setUserEmail] = useState(email);
+  const [userName, setUserName] = useState("");
   const { toast } = useToast();
+
+  // Extract name from email whenever it changes
+  useEffect(() => {
+    const name = userEmail.split("@")[0];
+    setUserName(name.charAt(0).toUpperCase() + name.slice(1));
+  }, [userEmail]);
 
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.some((item) => item.id === product.id)) {
@@ -116,23 +114,30 @@ export const ShopPage = () => {
     });
   };
 
-  const handlePlaceOrder = (product: Product) => {
-    const orderItem = { ...product, quantity: 1 };
-    navigate('/checkout', { 
-      state: { 
-        cartItems: [orderItem], 
-        totalPrice: product.price,
-        email 
-      } 
+  const saveProfile = () => {
+    setIsEditing(false);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated",
+    });
+  };
+
+  const addToCart = (product: Product) => {
+    setCartItems((prev) => {
+      const existingItem = prev.find((item) => item.id === product.id);
+      if (existingItem) {
+        return prev.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
   const removeFromCart = (productId: number) => {
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
-    toast({
-      title: "Removed from Cart",
-      description: "Item has been removed from your cart",
-    });
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -146,21 +151,113 @@ export const ShopPage = () => {
       <nav className="glass sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">Premium Tech</h1>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/offers', { state: { email } })}
-              >
-                Special Offers
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/wishlist', { state: { email } })}
-              >
-                Wishlist
-              </Button>
-            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="lg:block p-2 hover:bg-white/10 rounded-lg transition-colors">
+                  <Menu className="w-6 h-6" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] glass">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="py-4">
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="relative h-32 rounded-lg overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500"
+                          alt="Profile Banner"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                          <h3 className="text-white font-semibold">{userName}</h3>
+                          <p className="text-white/80 text-sm">{userEmail}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 bg-black/20 hover:bg-black/40"
+                          onClick={() => setIsEditing(!isEditing)}
+                        >
+                          {isEditing ? <Save className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {isEditing && (
+                        <div className="space-y-2">
+                          <Input
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value)}
+                            placeholder="Email"
+                          />
+                          <Button onClick={saveProfile} className="w-full">
+                            Save Changes
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Tag className="mr-2 h-4 w-4" />
+                        Special Offers
+                      </h3>
+                      <div className="space-y-2">
+                        {specialOffers.map((offer) => (
+                          <div
+                            key={offer.id}
+                            className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                          >
+                            <h4 className="font-medium">{offer.title}</h4>
+                            <p className="text-sm text-white/60">
+                              {offer.description}
+                            </p>
+                            <code className="text-xs bg-white/10 px-2 py-1 rounded mt-2 inline-block">
+                              {offer.code}
+                            </code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Wishlist ({wishlistItems.length})
+                      </h3>
+                      <div className="space-y-2">
+                        {wishlistItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center space-x-3 p-2 rounded-lg bg-white/5"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-12 h-12 rounded-md object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{item.name}</p>
+                              <p className="text-sm text-white/60">
+                                ${item.price}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeFromWishlist(item.id)}
+                              className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <h1 className="text-xl font-semibold">Premium Tech</h1>
 
             <div className="flex items-center space-x-4">
               <Drawer>
@@ -214,12 +311,7 @@ export const ShopPage = () => {
                             <span>Total:</span>
                             <span>${totalPrice.toFixed(2)}</span>
                           </div>
-                          <Button 
-                            className="w-full mt-4"
-                            onClick={handleCheckout}
-                          >
-                            Checkout
-                          </Button>
+                          <Button className="w-full mt-4">Checkout</Button>
                         </div>
                       </div>
                     )}
@@ -250,10 +342,10 @@ export const ShopPage = () => {
                 <p className="text-sm text-white/60">${product.price}</p>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => handlePlaceOrder(product)}
+                    onClick={() => addToCart(product)}
                     className="flex-1 btn-primary"
                   >
-                    Place Order
+                    Add to Cart
                   </Button>
                   <Button
                     variant="outline"
