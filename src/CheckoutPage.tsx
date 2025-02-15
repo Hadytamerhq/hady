@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ export const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { cartItems, totalPrice } = location.state || {};
+  const { cartItems, totalPrice, email } = location.state || {};
 
   if (!cartItems) {
     return <Navigate to="/shop" replace />;
@@ -16,7 +17,7 @@ export const CheckoutPage = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: email || '',
     address: '',
     city: '',
     zipCode: '',
@@ -39,6 +40,7 @@ export const CheckoutPage = () => {
       title: "Order Placed Successfully",
       description: "Thank you for your purchase! You will receive a confirmation email shortly.",
     });
+    // Navigate back to shop with the email state preserved
     navigate('/shop', { state: { email: formData.email } });
   };
 
