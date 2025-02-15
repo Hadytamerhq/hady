@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import {
@@ -116,21 +116,14 @@ export const ShopPage = () => {
     });
   };
 
-  const addToCart = (product: Product) => {
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-    toast({
-      title: "Added to Cart",
-      description: `${product.name} has been added to your cart`,
+  const handlePlaceOrder = (product: Product) => {
+    const orderItem = { ...product, quantity: 1 };
+    navigate('/checkout', { 
+      state: { 
+        cartItems: [orderItem], 
+        totalPrice: product.price,
+        email 
+      } 
     });
   };
 
@@ -147,10 +140,6 @@ export const ShopPage = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
-  const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems, totalPrice } });
-  };
 
   return (
     <div className="min-h-screen">
@@ -261,10 +250,10 @@ export const ShopPage = () => {
                 <p className="text-sm text-white/60">${product.price}</p>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => addToCart(product)}
+                    onClick={() => handlePlaceOrder(product)}
                     className="flex-1 btn-primary"
                   >
-                    Add to Cart
+                    Place Order
                   </Button>
                   <Button
                     variant="outline"
