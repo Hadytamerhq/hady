@@ -1,8 +1,16 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu } from "lucide-react";
+import { ShoppingCart, Heart, Menu, Tag, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Drawer,
   DrawerContent,
@@ -71,6 +79,93 @@ const products = [
     name: "Wireless Charging Pad",
     price: 49.99,
     image: "https://images.unsplash.com/photo-1587037542794-6c5bf0e66d8b?w=500",
+  },
+];
+
+const specialOffers = [
+  {
+    id: 1,
+    name: "Limited Edition Gaming Bundle",
+    price: 499.99,
+    originalPrice: 799.99,
+    image: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500",
+  },
+  {
+    id: 2,
+    name: "Premium Audio Set",
+    price: 299.99,
+    originalPrice: 449.99,
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500",
+  },
+  {
+    id: 3,
+    name: "Smart Home Starter Kit",
+    price: 199.99,
+    originalPrice: 299.99,
+    image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=500",
+  },
+  {
+    id: 4,
+    name: "Pro Photography Bundle",
+    price: 899.99,
+    originalPrice: 1299.99,
+    image: "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?w=500",
+  },
+  {
+    id: 5,
+    name: "Ultimate Streaming Setup",
+    price: 399.99,
+    originalPrice: 599.99,
+    image: "https://images.unsplash.com/photo-1547394765-185e1e68f34e?w=500",
+  },
+  {
+    id: 6,
+    name: "4K Entertainment Package",
+    price: 799.99,
+    originalPrice: 1099.99,
+    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500",
+  },
+  {
+    id: 7,
+    name: "Gaming Accessories Pack",
+    price: 149.99,
+    originalPrice: 249.99,
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500",
+  },
+  {
+    id: 8,
+    name: "Mobile Pro Kit",
+    price: 249.99,
+    originalPrice: 399.99,
+    image: "https://images.unsplash.com/photo-1512054502232-10a0a035d672?w=500",
+  },
+  {
+    id: 9,
+    name: "Smart Fitness Bundle",
+    price: 179.99,
+    originalPrice: 299.99,
+    image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=500",
+  },
+  {
+    id: 10,
+    name: "Home Office Package",
+    price: 599.99,
+    originalPrice: 899.99,
+    image: "https://images.unsplash.com/photo-1527384025924-f30fc2ac5caa?w=500",
+  },
+  {
+    id: 11,
+    name: "Creative Suite Bundle",
+    price: 349.99,
+    originalPrice: 499.99,
+    image: "https://images.unsplash.com/photo-1561883088-039e53143d73?w=500",
+  },
+  {
+    id: 12,
+    name: "Premium Audio Bundle",
+    price: 449.99,
+    originalPrice: 699.99,
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500",
   },
 ];
 
@@ -157,21 +252,100 @@ export const ShopPage = () => {
       <nav className="glass sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">Premium Tech</h1>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/offers', { state: { email } })}
-              >
-                Special Offers
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/wishlist', { state: { email } })}
-              >
-                Wishlist
-              </Button>
-            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="lg:block p-2 hover:bg-white/10 rounded-lg transition-colors">
+                  <Menu className="w-6 h-6" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] glass">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="py-4">
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Tag className="mr-2 h-4 w-4" />
+                        Special Offers
+                      </h3>
+                      <div className="space-y-2">
+                        {specialOffers.map((offer) => (
+                          <div
+                            key={offer.id}
+                            className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={offer.image} 
+                                alt={offer.name}
+                                className="w-16 h-16 rounded-lg object-cover"
+                              />
+                              <div>
+                                <h4 className="font-medium">{offer.name}</h4>
+                                <p className="text-sm text-white/60">
+                                  <span className="line-through">${offer.originalPrice}</span>
+                                  {" "}
+                                  <span className="text-primary font-bold">${offer.price}</span>
+                                </p>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="mt-2"
+                                  onClick={() => addToCart({
+                                    id: offer.id,
+                                    name: offer.name,
+                                    price: offer.price,
+                                    image: offer.image
+                                  })}
+                                >
+                                  Add to Cart
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Wishlist ({wishlistItems.length})
+                      </h3>
+                      <div className="space-y-2">
+                        {wishlistItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center space-x-3 p-2 rounded-lg bg-white/5"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-12 h-12 rounded-md object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{item.name}</p>
+                              <p className="text-sm text-white/60">
+                                ${item.price}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeFromWishlist(item.id)}
+                              className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <h1 className="text-xl font-semibold">Premium Tech</h1>
 
             <div className="flex items-center space-x-4">
               <Drawer>
