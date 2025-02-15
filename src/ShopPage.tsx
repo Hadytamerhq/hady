@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu, User, Tag, X, Edit, Save } from "lucide-react";
+import { ShoppingCart, Heart, Menu, Tag, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -17,7 +18,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
 
 const products = [
   {
@@ -44,9 +44,131 @@ const products = [
     price: 199.99,
     image: "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=500",
   },
+  {
+    id: 5,
+    name: "Wireless Gaming Mouse",
+    price: 89.99,
+    image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500",
+  },
+  {
+    id: 6,
+    name: "4K Gaming Monitor",
+    price: 599.99,
+    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500",
+  },
+  {
+    id: 7,
+    name: "Mechanical Keyboard",
+    price: 149.99,
+    image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500",
+  },
+  {
+    id: 8,
+    name: "Noise-Canceling Earbuds",
+    price: 249.99,
+    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500",
+  },
+  {
+    id: 9,
+    name: "Smart Home Hub",
+    price: 129.99,
+    image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=500",
+  },
+  {
+    id: 10,
+    name: "Wireless Charging Pad",
+    price: 49.99,
+    image: "https://images.unsplash.com/photo-1587037542794-6c5bf0e66d8b?w=500",
+  },
 ];
 
-// Define Product type first
+const specialOffers = [
+  {
+    id: 1,
+    name: "Limited Edition Gaming Bundle",
+    price: 499.99,
+    originalPrice: 799.99,
+    image: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500",
+  },
+  {
+    id: 2,
+    name: "Premium Audio Set",
+    price: 299.99,
+    originalPrice: 449.99,
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500",
+  },
+  {
+    id: 3,
+    name: "Smart Home Starter Kit",
+    price: 199.99,
+    originalPrice: 299.99,
+    image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=500",
+  },
+  {
+    id: 4,
+    name: "Pro Photography Bundle",
+    price: 899.99,
+    originalPrice: 1299.99,
+    image: "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?w=500",
+  },
+  {
+    id: 5,
+    name: "Ultimate Streaming Setup",
+    price: 399.99,
+    originalPrice: 599.99,
+    image: "https://images.unsplash.com/photo-1547394765-185e1e68f34e?w=500",
+  },
+  {
+    id: 6,
+    name: "4K Entertainment Package",
+    price: 799.99,
+    originalPrice: 1099.99,
+    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500",
+  },
+  {
+    id: 7,
+    name: "Gaming Accessories Pack",
+    price: 149.99,
+    originalPrice: 249.99,
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500",
+  },
+  {
+    id: 8,
+    name: "Mobile Pro Kit",
+    price: 249.99,
+    originalPrice: 399.99,
+    image: "https://images.unsplash.com/photo-1512054502232-10a0a035d672?w=500",
+  },
+  {
+    id: 9,
+    name: "Smart Fitness Bundle",
+    price: 179.99,
+    originalPrice: 299.99,
+    image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=500",
+  },
+  {
+    id: 10,
+    name: "Home Office Package",
+    price: 599.99,
+    originalPrice: 899.99,
+    image: "https://images.unsplash.com/photo-1527384025924-f30fc2ac5caa?w=500",
+  },
+  {
+    id: 11,
+    name: "Creative Suite Bundle",
+    price: 349.99,
+    originalPrice: 499.99,
+    image: "https://images.unsplash.com/photo-1561883088-039e53143d73?w=500",
+  },
+  {
+    id: 12,
+    name: "Premium Audio Bundle",
+    price: 449.99,
+    originalPrice: 699.99,
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500",
+  },
+];
+
 type Product = {
   id: number;
   name: string;
@@ -54,47 +176,22 @@ type Product = {
   image: string;
 };
 
-// Then define CartItem interface that includes all Product properties plus quantity
 interface CartItem extends Product {
   quantity: number;
 }
 
-const specialOffers = [
-  {
-    id: 1,
-    title: "Summer Sale!",
-    description: "Get 20% off on all wireless devices",
-    code: "SUMMER20",
-  },
-  {
-    id: 2,
-    title: "Bundle Deal",
-    description: "Buy any 2 items and get 1 free",
-    code: "BUNDLE2GET1",
-  },
-];
-
 export const ShopPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const email = location.state?.email;
   
-  // Redirect if no email is provided
   if (!email) {
     return <Navigate to="/" replace />;
   }
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [userEmail, setUserEmail] = useState(email);
-  const [userName, setUserName] = useState("");
   const { toast } = useToast();
-
-  // Extract name from email whenever it changes
-  useEffect(() => {
-    const name = userEmail.split("@")[0];
-    setUserName(name.charAt(0).toUpperCase() + name.slice(1));
-  }, [userEmail]);
 
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.some((item) => item.id === product.id)) {
@@ -114,14 +211,6 @@ export const ShopPage = () => {
     });
   };
 
-  const saveProfile = () => {
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated",
-    });
-  };
-
   const addToCart = (product: Product) => {
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item.id === product.id);
@@ -134,10 +223,18 @@ export const ShopPage = () => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    toast({
+      title: "Added to Cart",
+      description: `${product.name} has been added to your cart`,
+    });
   };
 
   const removeFromCart = (productId: number) => {
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
+    toast({
+      title: "Removed from Cart",
+      description: "Item has been removed from your cart",
+    });
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -145,6 +242,10 @@ export const ShopPage = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  const handleCheckout = () => {
+    navigate('/checkout', { state: { cartItems, totalPrice } });
+  };
 
   return (
     <div className="min-h-screen">
@@ -164,40 +265,6 @@ export const ShopPage = () => {
                 <div className="py-4">
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <div className="relative h-32 rounded-lg overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500"
-                          alt="Profile Banner"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                          <h3 className="text-white font-semibold">{userName}</h3>
-                          <p className="text-white/80 text-sm">{userEmail}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-2 right-2 bg-black/20 hover:bg-black/40"
-                          onClick={() => setIsEditing(!isEditing)}
-                        >
-                          {isEditing ? <Save className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      {isEditing && (
-                        <div className="space-y-2">
-                          <Input
-                            value={userEmail}
-                            onChange={(e) => setUserEmail(e.target.value)}
-                            placeholder="Email"
-                          />
-                          <Button onClick={saveProfile} className="w-full">
-                            Save Changes
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-4">
                       <h3 className="font-semibold flex items-center">
                         <Tag className="mr-2 h-4 w-4" />
                         Special Offers
@@ -208,13 +275,34 @@ export const ShopPage = () => {
                             key={offer.id}
                             className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                           >
-                            <h4 className="font-medium">{offer.title}</h4>
-                            <p className="text-sm text-white/60">
-                              {offer.description}
-                            </p>
-                            <code className="text-xs bg-white/10 px-2 py-1 rounded mt-2 inline-block">
-                              {offer.code}
-                            </code>
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={offer.image} 
+                                alt={offer.name}
+                                className="w-16 h-16 rounded-lg object-cover"
+                              />
+                              <div>
+                                <h4 className="font-medium">{offer.name}</h4>
+                                <p className="text-sm text-white/60">
+                                  <span className="line-through">${offer.originalPrice}</span>
+                                  {" "}
+                                  <span className="text-primary font-bold">${offer.price}</span>
+                                </p>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="mt-2"
+                                  onClick={() => addToCart({
+                                    id: offer.id,
+                                    name: offer.name,
+                                    price: offer.price,
+                                    image: offer.image
+                                  })}
+                                >
+                                  Add to Cart
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -311,7 +399,12 @@ export const ShopPage = () => {
                             <span>Total:</span>
                             <span>${totalPrice.toFixed(2)}</span>
                           </div>
-                          <Button className="w-full mt-4">Checkout</Button>
+                          <Button 
+                            className="w-full mt-4"
+                            onClick={handleCheckout}
+                          >
+                            Checkout
+                          </Button>
                         </div>
                       </div>
                     )}
