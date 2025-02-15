@@ -7,6 +7,8 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthForm } from "./AuthForm";
 import { ShopPage } from "./ShopPage";
 import { CheckoutPage } from "./CheckoutPage";
+import { OffersPage } from "./OffersPage";
+import { WishlistPage } from "./WishlistPage";
 import { NotFound } from "./NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => {
             <Route path="/" element={<AuthForm />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/offers" element={<OffersPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>

@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, Tag, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import {
@@ -183,12 +182,16 @@ interface CartItem extends Product {
 export const ShopPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
-  
   const email = location.state?.email;
   
+  if (!email) {
+    return <Navigate to="/" replace />;
+  }
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+  const { toast } = useToast();
+
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.some((item) => item.id === product.id)) {
       setWishlistItems([...wishlistItems, product]);
@@ -240,112 +243,29 @@ export const ShopPage = () => {
   );
 
   const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems, totalPrice, email } });
+    navigate('/checkout', { state: { cartItems, totalPrice } });
   };
-
-  if (!email) {
-    return <Navigate to="/" replace />;
-  }
 
   return (
     <div className="min-h-screen">
       <nav className="glass sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Sheet>
-              <SheetTrigger asChild>
-                <button className="lg:block p-2 hover:bg-white/10 rounded-lg transition-colors">
-                  <Menu className="w-6 h-6" />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px] glass">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <div className="py-4">
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <h3 className="font-semibold flex items-center">
-                        <Tag className="mr-2 h-4 w-4" />
-                        Special Offers
-                      </h3>
-                      <div className="space-y-2">
-                        {specialOffers.map((offer) => (
-                          <div
-                            key={offer.id}
-                            className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={offer.image} 
-                                alt={offer.name}
-                                className="w-16 h-16 rounded-lg object-cover"
-                              />
-                              <div>
-                                <h4 className="font-medium">{offer.name}</h4>
-                                <p className="text-sm text-white/60">
-                                  <span className="line-through">${offer.originalPrice}</span>
-                                  {" "}
-                                  <span className="text-primary font-bold">${offer.price}</span>
-                                </p>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="mt-2"
-                                  onClick={() => addToCart({
-                                    id: offer.id,
-                                    name: offer.name,
-                                    price: offer.price,
-                                    image: offer.image
-                                  })}
-                                >
-                                  Add to Cart
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="font-semibold flex items-center">
-                        <Heart className="mr-2 h-4 w-4" />
-                        Wishlist ({wishlistItems.length})
-                      </h3>
-                      <div className="space-y-2">
-                        {wishlistItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex items-center space-x-3 p-2 rounded-lg bg-white/5"
-                          >
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-12 h-12 rounded-md object-cover"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{item.name}</p>
-                              <p className="text-sm text-white/60">
-                                ${item.price}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => removeFromWishlist(item.id)}
-                              className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <h1 className="text-xl font-semibold">Premium Tech</h1>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold">Premium Tech</h1>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/offers', { state: { email } })}
+              >
+                Special Offers
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/wishlist', { state: { email } })}
+              >
+                Wishlist
+              </Button>
+            </div>
 
             <div className="flex items-center space-x-4">
               <Drawer>
