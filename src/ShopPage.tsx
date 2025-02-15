@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, Menu, Tag, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import {
@@ -183,16 +183,12 @@ interface CartItem extends Product {
 export const ShopPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email;
-  
-  if (!email) {
-    return <Navigate to="/" replace />;
-  }
-
+  const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
-  const { toast } = useToast();
-
+  
+  const email = location.state?.email;
+  
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.some((item) => item.id === product.id)) {
       setWishlistItems([...wishlistItems, product]);
@@ -244,8 +240,12 @@ export const ShopPage = () => {
   );
 
   const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems, totalPrice } });
+    navigate('/checkout', { state: { cartItems, totalPrice, email } });
   };
+
+  if (!email) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="min-h-screen">
