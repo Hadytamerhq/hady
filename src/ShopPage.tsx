@@ -96,11 +96,15 @@ export const ShopPage = () => {
   const email = location.state?.email;
 
   useEffect(() => {
+    // Handle incoming cart items
+    if (location.state?.cartItems) {
+      setCartItems(location.state.cartItems);
+    }
     // Handle incoming wishlist items from the WishlistPage
     if (location.state?.wishlistItems) {
       setWishlistItems(location.state.wishlistItems);
     }
-    // Handle add to cart request from WishlistPage
+    // Handle add to cart request from other pages
     if (location.state?.addToCart) {
       addToCart(location.state.addToCart);
     }
@@ -173,13 +177,13 @@ export const ShopPage = () => {
               <h1 className="text-xl font-semibold">Premium Tech</h1>
               <Button
                 variant="ghost"
-                onClick={() => navigate('/offers', { state: { email } })}
+                onClick={() => navigate('/offers', { state: { email, cartItems, wishlistItems } })}
               >
                 Special Offers
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => navigate('/wishlist', { state: { email, wishlistItems } })}
+                onClick={() => navigate('/wishlist', { state: { email, wishlistItems, cartItems } })}
               >
                 Wishlist
               </Button>

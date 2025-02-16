@@ -1,20 +1,31 @@
 
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { specialOffers } from './data/offers';
+import { Heart, ArrowLeft } from "lucide-react";
 
 export const OffersPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const email = location.state?.email;
+  const cartItems = location.state?.cartItems || [];
+  const wishlistItems = location.state?.wishlistItems || [];
   
   if (!email) {
     return <Navigate to="/" replace />;
   }
 
   const handleAddToCart = (offer: any) => {
-    // This is just a placeholder - in a real app, we'd use a cart context or state management
+    navigate('/shop', {
+      state: {
+        email,
+        addToCart: offer,
+        cartItems,
+        wishlistItems
+      }
+    });
     toast({
       title: "Added to Cart",
       description: `${offer.name} has been added to your cart`,
@@ -23,7 +34,24 @@ export const OffersPage = () => {
 
   return (
     <div className="min-h-screen container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-8">Special Offers</h1>
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/shop', { state: { email, cartItems, wishlistItems } })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">Special Offers</h1>
+        </div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/wishlist', { state: { email, wishlistItems } })}
+        >
+          Wishlist
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {specialOffers.map((offer) => (
           <div
