@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart, Menu, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -95,6 +95,17 @@ export const ShopPage = () => {
   
   const email = location.state?.email;
 
+  useEffect(() => {
+    // Handle incoming wishlist items from the WishlistPage
+    if (location.state?.wishlistItems) {
+      setWishlistItems(location.state.wishlistItems);
+    }
+    // Handle add to cart request from WishlistPage
+    if (location.state?.addToCart) {
+      addToCart(location.state.addToCart);
+    }
+  }, [location.state]);
+
   if (!email) {
     return <Navigate to="/" replace />;
   }
@@ -168,7 +179,7 @@ export const ShopPage = () => {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => navigate('/wishlist', { state: { email } })}
+                onClick={() => navigate('/wishlist', { state: { email, wishlistItems } })}
               >
                 Wishlist
               </Button>
