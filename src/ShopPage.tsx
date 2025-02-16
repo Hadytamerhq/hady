@@ -89,15 +89,15 @@ interface CartItem extends Product {
 export const ShopPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email;
+  const { toast } = useToast();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
   
+  const email = location.state?.email;
+
   if (!email) {
     return <Navigate to="/" replace />;
   }
-
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
-  const { toast } = useToast();
 
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.some((item) => item.id === product.id)) {
@@ -150,7 +150,7 @@ export const ShopPage = () => {
   );
 
   const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems, totalPrice } });
+    navigate('/checkout', { state: { cartItems, totalPrice, email } });
   };
 
   return (
