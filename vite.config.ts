@@ -8,7 +8,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: '0.0.0.0', // Allow connections from all hosts
-    port: 3000, // Use port 3000 which is standard for Replit
+    port: 8080, // Using required port 8080
   },
   plugins: [
     react(),
