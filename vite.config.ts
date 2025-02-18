@@ -6,10 +6,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "./", // This ensures assets are loaded correctly on GitHub Pages
   server: {
-    host: "::",
-    port: 8080,
+    host: '0.0.0.0', // Allow connections from all hosts
+    port: 3000, // Use port 3000 which is standard for Replit
   },
   plugins: [
     react(),
